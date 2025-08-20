@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence,anticipate } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -98,8 +98,7 @@ export function VisitorManagement() {
   };
 
   const pageTransition = {
-    type: 'tween',
-    ease: 'anticipate',
+    ease: anticipate,
     duration: 0.5
   };
 

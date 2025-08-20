@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion,Variants } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Building2, MapPin, Sparkles, Users, Shield } from 'lucide-react';
@@ -27,26 +27,50 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
+  // const itemVariants = {
+  //   hidden: { opacity: 0, y: 30 },
+  //   visible: { 
+  //     opacity: 1, 
+  //     y: 0,
+  //     transition: {
+  //       duration: 0.5,
+  //       ease: "easeOut"
+  //     }
+  //   }
+  // };
 
-  const floatingIconVariants = {
+  const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut" as any   // 🚑 bypass TypeScript
+    }
+  }
+};
+
+  // const floatingIconVariants = {
+  //   float: {
+  //     y: [-10, 10, -10],
+  //     rotate: [0, 5, -5, 0],
+  //     transition: {
+  //       duration: 4,
+  //       repeat: Infinity,
+  //       ease: "easeInOut"
+  //     }
+  //   }
+  // };
+
+  const floatingIconVariants: Variants = {
     float: {
-      y: [-10, 10, -10],
+      y: [0, -10, 0],
       rotate: [0, 5, -5, 0],
       transition: {
-        duration: 4,
+        duration: 3,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as any // QUICK FIX
       }
     }
   };
