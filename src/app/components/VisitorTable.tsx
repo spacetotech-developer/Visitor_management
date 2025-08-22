@@ -1,27 +1,97 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Clock, Mail, Phone, Monitor, User, TrendingUp, Users, Calendar } from 'lucide-react';
-import { Visitor } from './VisitorManagement';
+import { useApi } from '../hooks/useApi';
+interface Visitor {
+  _id: string;
+  name: string;
+  photo?: string;
+  email: string;
+  mobileNo: string;
+  meetWith: string;
+  entryTime: Date;
+  exitTime?: string;
+  status: string;
+  electronicItems: {
+    _id: string;
+    name: string;
+    photo?: string;
+    serialNumber: string;
+  }[];
+  uniqueCode?: string;
+};
 
-interface VisitorTableProps {
+interface ApiResponse {
+  data: any;
   visitors: Visitor[];
 }
-
-export function VisitorTable({ visitors }: VisitorTableProps) {
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-IN', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
+interface VisitorTableProps {
+  officeId: string | null;
+  visitorsdetails?: Visitor[];
+  visitorState?: {
+    totalVisitors: number;
+    totalVisitorsIn: number;
+    totalVisitorsOut: number;
   };
+}
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-IN', {
+export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
+  const { callApi, loading } = useApi<ApiResponse>();
+  const [visitors, setVisitors] = React.useState<Visitor[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(0);  
+  const pageSize = 5;
+  
+  useEffect(() => {
+    // Fetch visitors data from API or state management
+    const fetchVisitors = async () => {
+      try {
+        const {data,error} = await callApi(`/visitor/getAllVisitors?page=${currentPage}&limit=${pageSize}&search&status&officeId=${officeId}`, 
+          { 
+            method: 'GET' 
+          });
+        if (data && data.data && Array.isArray(data.data.visitors)) {
+          setVisitors(data?.data?.visitors || []);
+          setTotalPages(data?.data?.total || 0);
+          console.log('Visitors fetched successfully:', data?.data?.visitors);
+        } else {
+          console.error('Invalid data format:', data);
+        }
+        // Handle error if any      
+        if (error) {
+          console.error('Error fetching visitors:', error);
+          return; 
+        } 
+      } catch (error) {
+        console.error('Error fetching visitors:', error);
+      }
+    };
+    fetchVisitors();
+  }, [currentPage]);
+
+  // Pagination logic
+  const totalPageses = Math.ceil(totalPages! / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedVisitors = visitors;
+
+
+  // Format time and date
+  const formatTime = (date: string | Date) => {
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleTimeString('en-IN', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+};
+
+  const formatDate = (date: string | Date) => {
+  const d = date instanceof Date ? date : new Date(date);
+    return d.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -77,7 +147,7 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
                   >
-                    {visitors.length}
+                    {visitorState?.totalVisitors || 0}
                   </motion.p>
                 </div>
               </div>
@@ -104,7 +174,8 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.3 }}
                   >
-                    {visitors.filter(v => v.status === 'in-office').length}
+                    {/* {visitors.filter(v => v.status === 'In').length} */}
+                    {visitorState?.totalVisitorsIn || 0}
                   </motion.p>
                 </div>
               </div>
@@ -181,9 +252,9 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {visitors.map((visitor, index) => (
+                    {paginatedVisitors.map((visitor, index) => (
                       <motion.tr
-                        key={visitor.id}
+                        key={visitor._id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -216,7 +287,7 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-600">
                               <Phone className="h-3 w-3" />
-                              {visitor.phone}
+                              {visitor.mobileNo}
                             </div>
                           </div>
                         </TableCell>
@@ -232,12 +303,12 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                           >
                             <Badge 
                               className={`${
-                                visitor.status === 'in-office' 
+                                visitor.status === 'In' 
                                   ? 'bg-success shadow-md' 
                                   : 'bg-secondary shadow-md'
                               } border-0 text-white`}
                             >
-                              {visitor.status === 'in-office' ? 'In Office' : 'Left Office'}
+                              {visitor.status === 'In' ? 'In Office' : 'Left Office'}
                             </Badge>
                           </motion.div>
                         </TableCell>
@@ -248,19 +319,19 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                             ) : (
                               visitor.electronicItems.map((item) => (
                                 <motion.div 
-                                  key={item.id} 
+                                  key={item._id} 
                                   className="flex items-center gap-2"
                                   whileHover={{ scale: 1.02 }}
                                 >
                                   {item.photo && (
                                     <img 
                                       src={item.photo} 
-                                      alt={item.productName}
+                                      alt={item.name}
                                       className="w-6 h-6 object-cover rounded"
                                     />
                                   )}
                                   <div className="text-sm">
-                                    <p className="font-medium text-gray-700">{item.productName}</p>
+                                    <p className="font-medium text-gray-700">{item.name}</p>
                                     <p className="text-gray-500">#{item.serialNumber}</p>
                                   </div>
                                 </motion.div>
@@ -269,7 +340,7 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {visitor.status === 'in-office' && visitor.exitCode ? (
+                          {visitor.status === 'In' && visitor.uniqueCode ? (
                             <motion.div
                               whileHover={{ scale: 1.05 }}
                               transition={{ type: "spring", stiffness: 300 }}
@@ -278,7 +349,7 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                                 variant="outline" 
                                 className="font-mono bg-gray-50 border-gray-300 text-gray-700 shadow-sm"
                               >
-                                {visitor.exitCode}
+                                {visitor.uniqueCode}
                               </Badge>
                             </motion.div>
                           ) : (
@@ -291,6 +362,41 @@ export function VisitorTable({ visitors }: VisitorTableProps) {
                 </Table>
               </div>
             )}
+          {/* Pagination */}
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-sm">
+                  Showing {startIndex + 1} to {Math.min(startIndex + pageSize, totalPages!)} of{" "}
+                  {totalPages} entries
+                </span>
+
+                <div className="flex space-x-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPageses }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 border rounded ${
+                        currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    disabled={currentPage === totalPageses}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
           </CardContent>
         </Card>
       </motion.div>

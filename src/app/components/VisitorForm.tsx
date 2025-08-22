@@ -9,7 +9,7 @@ import { Plus, X, Camera, User, CheckCircle, Mail, Phone, Building } from 'lucid
 import { ElectronicItem, Visitor } from './VisitorManagement';
 
 interface VisitorFormProps {
-  onSubmit: (visitor: Omit<Visitor, 'id' | 'entryTime' | 'status' | 'exitCode' | 'officeId'>) => void;
+  onSubmit: (visitor: Omit<Visitor, '_id' | 'entryTime' | 'status' | 'exitCode' | "officeId" >) => void;
 }
 
 export function VisitorForm({ onSubmit }: VisitorFormProps) {
@@ -23,7 +23,7 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
   
   const [electronicItems, setElectronicItems] = useState<ElectronicItem[]>([]);
   const [newItem, setNewItem] = useState({
-    productName: '',
+    name: '',
     serialNumber: '',
     photo: '',
   });
@@ -34,13 +34,13 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
   };
 
   const addElectronicItem = () => {
-    if (newItem.productName && newItem.serialNumber) {
+    if (newItem.name && newItem.serialNumber) {
       const item: ElectronicItem = {
         id: `item-${Date.now()}`,
         ...newItem,
       };
       setElectronicItems(prev => [...prev, item]);
-      setNewItem({ productName: '', serialNumber: '', photo: '' });
+      setNewItem({ name: '', serialNumber: '', photo: '' });
     }
   };
 
@@ -243,11 +243,11 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
                 whileHover={{ scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Label htmlFor="productName" className="text-gray-700">Product Name</Label>
+                <Label htmlFor="name" className="text-gray-700">Product Name</Label>
                 <Input
-                  id="productName"
-                  value={newItem.productName}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, productName: e.target.value }))}
+                  id="name"
+                  value={newItem.name}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Laptop, Phone, Camera..."
                   className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20"
                 />
@@ -286,7 +286,7 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
                     <Button 
                       type="button" 
                       onClick={addElectronicItem}
-                      disabled={!newItem.productName || !newItem.serialNumber}
+                      disabled={!newItem.name || !newItem.serialNumber}
                       className="bg-success hover:shadow-md flex items-center gap-1"
                     >
                       <Plus className="h-4 w-4" />
@@ -321,13 +321,13 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
                           {item.photo && (
                             <motion.img 
                               src={item.photo} 
-                              alt={item.productName}
+                              alt={item.name}
                               className="w-12 h-12 object-cover rounded-lg"
                               whileHover={{ scale: 1.1 }}
                             />
                           )}
                           <div>
-                            <p className="font-medium text-gray-900">{item.productName}</p>
+                            <p className="font-medium text-gray-900">{item.name}</p>
                             <p className="text-sm text-gray-600">Serial: {item.serialNumber}</p>
                           </div>
                         </div>

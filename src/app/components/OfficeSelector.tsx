@@ -2,20 +2,31 @@ import React from 'react';
 import { motion,Variants } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Building2, MapPin, Sparkles, Users, Shield } from 'lucide-react';
+import { Building2, MapPin, Sparkles, Users, Shield, LogOut, UserCheck } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 interface Office {
-  id: string;
-  name: string;
-  address: string;
+  _id: string;
+  officeName: string;
+  officeAddress: string;
 }
 
+interface UserInfo {
+  username: string;
+}
 interface OfficeSelectorProps {
   offices: Office[];
   onSelectOffice: (officeId: string) => void;
+  UserInfo?:UserInfo;
+  onLogout?: () => void;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>; 
+  pageSize: number;
+  totalPages: number;
+  currentPage: number;
+  startIndex: number;
 }
 
-export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps) {
+export function OfficeSelector({ offices, currentPage, startIndex, totalPages, pageSize, onSelectOffice, UserInfo, onLogout, setCurrentPage }: OfficeSelectorProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -26,18 +37,6 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
       }
     }
   };
-
-  // const itemVariants = {
-  //   hidden: { opacity: 0, y: 30 },
-  //   visible: { 
-  //     opacity: 1, 
-  //     y: 0,
-  //     transition: {
-  //       duration: 0.5,
-  //       ease: "easeOut"
-  //     }
-  //   }
-  // };
 
   const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -50,18 +49,6 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
     }
   }
 };
-
-  // const floatingIconVariants = {
-  //   float: {
-  //     y: [-10, 10, -10],
-  //     rotate: [0, 5, -5, 0],
-  //     transition: {
-  //       duration: 4,
-  //       repeat: Infinity,
-  //       ease: "easeInOut"
-  //     }
-  //   }
-  // };
 
   const floatingIconVariants: Variants = {
     float: {
@@ -81,7 +68,46 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%236b7280%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
       </div>
-
+       {/* User Header */}
+      {(UserInfo || onLogout) && (
+        <motion.div 
+          className="absolute top-0 right-0 z-20 p-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center gap-4">
+            {UserInfo && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Badge 
+                  className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md"
+                >
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  {UserInfo.username}
+                </Badge>
+              </motion.div>
+            )}
+            {onLogout && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  variant="outline" 
+                  onClick={onLogout}
+                  className="flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 bg-white shadow-md"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
       {/* Subtle Floating Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -160,7 +186,7 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
               <CardContent className="space-y-4 p-8">
                 {offices.map((office, index) => (
                   <motion.div
-                    key={office.id}
+                    key={office._id}
                     variants={itemVariants}
                     whileHover={{ 
                       scale: 1.01,
@@ -170,7 +196,7 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
                   >
                     <Card 
                       className="cursor-pointer transition-all duration-300 hover:shadow-lg bg-white border-2 border-gray-200 hover:border-blue-400 group"
-                      onClick={() => onSelectOffice(office.id)}
+                      onClick={() => onSelectOffice(office._id)}
                     >
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -183,11 +209,11 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
                             </motion.div>
                             <div className="flex-1">
                               <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                                {office.name}
+                                {office.officeName}
                               </h3>
                               <div className="flex items-center gap-2 text-gray-600 group-hover:text-blue-500 transition-colors">
                                 <MapPin className="h-4 w-4" />
-                                <span>{office.address}</span>
+                                <span>{office.officeAddress}</span>
                               </div>
                             </div>
                           </div>
@@ -207,6 +233,41 @@ export function OfficeSelector({ offices, onSelectOffice }: OfficeSelectorProps)
                     </Card>
                   </motion.div>
                 ))}
+                 {/* Pagination */}
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-sm">
+                  Showing {startIndex + 1} to {Math.min(startIndex + pageSize, offices.length)} of{" "}
+                  {offices.length} entries
+                </span>
+
+                <div className="flex space-x-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 border rounded ${
+                        currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
               </CardContent>
             </Card>
           </motion.div>
