@@ -1545,8 +1545,11 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
 
   // Handle exit
   const handleExit = async () => {
+    console.log("code")  
     if (!selectedVisitor) return;
+    console.log("code1")
     const payload = { code: exitCode.toUpperCase() };
+    console.log("payload",payload)
     const { data, error } = await callApi(`/visitor/checkOutVisitor`, {
       method: "PUT",
       body: payload,
@@ -1621,7 +1624,6 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
         if (code) {
           try {
             const qrData = code.data;
-            
             // Check if it's a URL with a code parameter
             if (qrData.includes('getVisitorByCode?code=')) {
               const url = new URL(qrData);
@@ -1667,7 +1669,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
               } catch (e) {
                 // If not JSON, treat as plain text code
                 const scannedCode = qrData.toUpperCase();
-                console.log("QR Code found as plain text:", scannedCode);
+                console.log("QR Code found as plain text:", scannedCode,"selectedVisitor:",selectedVisitor);
                 setExitCode(scannedCode);
                 stopCamera();
                 setShowCamera(false);
