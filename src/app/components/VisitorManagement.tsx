@@ -356,7 +356,7 @@ export function VisitorManagement({
       // Fetch visitors data from API or state management
       const fetchVisitors = async () => {
         try {
-          const {data,error} = await callApi(`visitor/getVisitorStats/`, 
+          const {data,error} = await callApi(`visitor/getVisitorStats?officeId=${officeId}`, 
             { 
               method: 'GET' 
             });
@@ -408,7 +408,7 @@ export function VisitorManagement({
       email: newVisitor.email,
       meetWith: newVisitor.meetWith,
       electronicItems: newVisitor.electronicItems.map(({ id, ...rest }) => rest),
-      entryTime: newVisitor.entryTime.toISOString(),
+      // entryTime: newVisitor.entryTime.toISOString(),
       officeId: officeId,
     };
     const { data, error } = await callApi(`/visitor/createVisitor`, {
