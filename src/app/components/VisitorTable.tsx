@@ -363,7 +363,7 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
               </div>
             )}
           {/* Pagination */}
-              <div className="flex justify-between items-center mt-4">
+              {/* <div className="flex justify-between items-center mt-4">
                 <span className="text-sm">
                   Showing {startIndex + 1} to {Math.min(startIndex + pageSize, totalPages!)} of{" "}
                   {totalPages} entries
@@ -392,6 +392,50 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
                     disabled={currentPage === totalPageses}
                     onClick={() => setCurrentPage((p) => p + 1)}
                     className="px-3 py-1 border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div> */}
+              {/* Pagination */}
+              <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
+                <span className="text-sm text-gray-600">
+                  Showing {startIndex + 1} to {Math.min(startIndex + pageSize, totalPages!)} of {totalPages} entries
+                </span>
+
+                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100 transition"
+                  >
+                    Previous
+                  </button>
+
+                  {/* Numeric page buttons */}
+                  {Array.from({ length: totalPageses }, (_, i) => {
+                    // Show only first, last, current ±1 for mobile
+                    const isMobile = window.innerWidth < 640; // sm breakpoint
+                    if (isMobile && i + 1 !== 1 && i + 1 !== totalPageses && Math.abs(currentPage - (i + 1)) > 1) {
+                      return null;
+                    }
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 border rounded ${
+                          currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-100"
+                        } transition`}
+                      >
+                        {i + 1}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    disabled={currentPage === totalPageses}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100 transition"
                   >
                     Next
                   </button>

@@ -1638,7 +1638,6 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                   method: "PUT",
                   body: payload,
                 });
-                setExitCode(scannedCode);
                 stopCamera();
                 setShowCamera(false);                 
                   if (data) {
@@ -1887,7 +1886,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                   Exit Verification
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 space-y-6">
+              {/* <CardContent className="p-8 space-y-6">
                 <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-xl border border-gray-200">
                   <Avatar className="h-16 w-16 ring-2 ring-gray-200">
                     <AvatarImage src={selectedVisitor.photo} />
@@ -1948,13 +1947,6 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                     className="flex-1 font-mono text-xl text-center bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20 h-14"
                   />
                   <Button
-                    onClick={initCamera}
-                    variant="outline"
-                    className="h-14 w-14 flex items-center justify-center p-2"
-                  >
-                    <Camera className="h-6 w-6 text-gray-700" />
-                  </Button>
-                  <Button
                     onClick={handleExit}
                     disabled={exitCode.length !== 8 || exitStatus === "success"}
                     className={`px-8 h-14 text-lg ${
@@ -1980,6 +1972,100 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                     <Alert className="bg-red-50 border-red-200 mt-4">
                       <XCircle className="h-4 w-4 text-red-600" />
                       <AlertDescription className="text-red-700">
+                        {errorMessage}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </AnimatePresence>
+              </CardContent> */}
+               <CardContent className="p-6 md:p-8 space-y-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200">
+                  <Avatar className="h-16 w-16 sm:h-20 sm:w-20 ring-2 ring-gray-200 flex-shrink-0">
+                    <AvatarImage src={selectedVisitor.photo} />
+                    <AvatarFallback className="bg-blue-600 text-white text-lg sm:text-xl">
+                      {selectedVisitor.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 w-full text-center sm:text-left">
+                    <h3 className="font-semibold text-lg sm:text-xl text-gray-900">
+                      {selectedVisitor.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm sm:text-base">
+                      Meeting with: {selectedVisitor.meetWith}
+                    </p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      Phone: {selectedVisitor.mobileNo}
+                    </p>
+                  </div>
+
+                  <div
+                    className="relative inline-block mt-2 sm:mt-0"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <Badge
+                      className="bg-success shadow-md text-sm sm:text-lg px-3 sm:px-4 py-2 cursor-pointer select-none"
+                      onClick={() => {
+                        const code = selectedVisitor.uniqueCode || "";
+                        if (!code) return;
+                        navigator.clipboard.writeText(code);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1500);
+                      }}
+                    >
+                      Exit Code: {selectedVisitor.uniqueCode || "N/A"} {copied && "✅"}
+                    </Badge>
+                    {showTooltip && (
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-md shadow-md whitespace-nowrap">
+                        {copied ? "Copied!" : "Click to copy"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Label htmlFor="exitCode" className="text-gray-700 text-base sm:text-lg">
+                  Enter Exit Code
+                </Label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Input
+                    id="exitCode"
+                    value={exitCode}
+                    onChange={(e) => setExitCode(e.target.value.toUpperCase())}
+                    placeholder="Enter 8-digit code"
+                    maxLength={8}
+                    className="flex-1 font-mono text-lg sm:text-xl text-center sm:text-left bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20 h-12 sm:h-14"
+                  />
+                  <Button
+                    onClick={handleExit}
+                    disabled={exitCode.length !== 8 || exitStatus === "success"}
+                    className={`w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 text-base sm:text-lg ${
+                      exitStatus === "success"
+                        ? "bg-success"
+                        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+                    }`}
+                  >
+                    {exitStatus === "success" ? "Success" : "Process Exit"}
+                  </Button>
+                </div>
+
+                <AnimatePresence>
+                  {exitStatus === "success" && (
+                    <Alert className="bg-green-50 border-green-200 mt-4">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="text-green-700 text-sm sm:text-base">
+                        Visitor exit processed successfully! {selectedVisitor.name} has been checked out.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {exitStatus === "error" && (
+                    <Alert className="bg-red-50 border-red-200 mt-4">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <AlertDescription className="text-red-700 text-sm sm:text-base">
                         {errorMessage}
                       </AlertDescription>
                     </Alert>
