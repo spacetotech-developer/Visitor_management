@@ -1624,7 +1624,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
             // Try to parse as JSON first (if it's a structured QR)
             const parsedData = JSON.parse(code.data);
             const scannedCode = parsedData.uniqueCode?.toUpperCase() || "";
-            
+            console.log("QR Code found:", scannedCode);
             if (scannedCode) {
               setExitCode(scannedCode);
               stopCamera();
