@@ -340,7 +340,7 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {visitor.status === 'In' && visitor.uniqueCode ? (
+                          {/* {visitor.status === 'In' && visitor.uniqueCode ? ( */}
                             <motion.div
                               whileHover={{ scale: 1.05 }}
                               transition={{ type: "spring", stiffness: 300 }}
@@ -352,9 +352,9 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
                                 {visitor.uniqueCode}
                               </Badge>
                             </motion.div>
-                          ) : (
-                            <span className="text-gray-500">-</span>
-                          )}
+                          {/* ) : ( */}
+                            {/* <span className="text-gray-500">-</span> */}
+                          {/* )} */}
                         </TableCell>
                       </motion.tr>
                     ))}
