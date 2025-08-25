@@ -1685,9 +1685,10 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
             setExitCode(scannedCode);
             stopCamera();
             setShowCamera(false);
-            if (selectedVisitor) {
-              handleExit();
-            }
+            handleExit();
+            // if (selectedVisitor) {
+            //   handleExit();
+            // }
             return;
           }
         }
