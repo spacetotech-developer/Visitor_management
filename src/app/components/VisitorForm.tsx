@@ -600,7 +600,7 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
                 >
                   <Label htmlFor="email" className="flex items-center gap-2 text-gray-700">
                     <Mail className="h-4 w-4" />
-                    Email Address *
+                    Visitor Email Address *
                   </Label>
                   <Input
                     id="email"

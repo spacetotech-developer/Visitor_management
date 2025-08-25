@@ -1634,48 +1634,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                 setExitCode(scannedCode);
                 stopCamera();
                 setShowCamera(false);
-                if (selectedVisitor) {
                   handleExit();
-                }
-                return;
-              }
-            }
-            // If not a URL, try to parse as JSON
-            else {
-              try {
-                const parsedData = JSON.parse(qrData);
-                if (parsedData.data && parsedData.data.uniqueCode) {
-                  const scannedCode = parsedData.data.uniqueCode.toUpperCase();
-                  console.log("QR Code found in API response:", scannedCode);
-                  setExitCode(scannedCode);
-                  stopCamera();
-                  setShowCamera(false);
-                  if (selectedVisitor) {
-                    handleExit();
-                  }
-                  return;
-                }
-                else if (parsedData.uniqueCode) {
-                  const scannedCode = parsedData.uniqueCode.toUpperCase();
-                  console.log("QR Code found in simple object:", scannedCode);
-                  setExitCode(scannedCode);
-                  stopCamera();
-                  setShowCamera(false);
-                  if (selectedVisitor) {
-                    handleExit();
-                  }
-                  return;
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text code
-                const scannedCode = qrData.toUpperCase();
-                console.log("QR Code found as plain text:", scannedCode,"selectedVisitor:",selectedVisitor);
-                setExitCode(scannedCode);
-                stopCamera();
-                setShowCamera(false);
-                if (selectedVisitor) {
-                  handleExit();
-                }
                 return;
               }
             }
