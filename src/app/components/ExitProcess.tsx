@@ -1613,7 +1613,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
     
     if (!ctx) return;
     
-    const scan = () => {
+    const scan = async () => {
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.height = video.videoHeight;
         canvas.width = video.videoWidth;
@@ -1631,10 +1631,28 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
               if (codeParam) {
                 const scannedCode = codeParam.toUpperCase();
                 console.log("QR Code extracted from URL:", scannedCode);
+                
+                // Directly call the API for QR code case
+                const payload = { code: scannedCode };
+                const { data, error } = await callApi(`/visitor/checkOutByCode`, {
+                  method: "PUT",
+                  body: payload,
+                });
                 setExitCode(scannedCode);
                 stopCamera();
-                setShowCamera(false);
-                  handleExit();
+                setShowCamera(false);                 
+                  if (data) {
+                    setExitStatus("success");
+                    setTimeout(() => {
+                      setExitStatus("idle");
+                      setVisitors([]);
+                      setCurrentPage(1);
+                      fetchVisitors(1);
+                    }, 2000);
+                  } else {
+                    setExitStatus("error");
+                    setErrorMessage("Invalid exit code!");
+                  }  
                 return;
               }
             }
