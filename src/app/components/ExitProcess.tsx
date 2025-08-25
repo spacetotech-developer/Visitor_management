@@ -508,6 +508,413 @@
 //   );
 // }
 
+// "use client";
+// import React, { useState, useEffect } from "react";
+// import { motion, AnimatePresence } from "motion/react";
+// import {
+//   Card,
+//   CardContent,
+//   CardHeader,
+//   CardTitle,
+// } from "./ui/card";
+// import { Button } from "./ui/button";
+// import { Input } from "./ui/input";
+// import { Label } from "./ui/label";
+// import { Badge } from "./ui/badge";
+// import {
+//   Avatar,
+//   AvatarFallback,
+//   AvatarImage,
+// } from "./ui/avatar";
+// import { Alert, AlertDescription } from "./ui/alert";
+// import {
+//   LogOut,
+//   Clock,
+//   User,
+//   CheckCircle,
+//   XCircle,
+//   Camera,
+//   Users,
+//   Copy
+// } from "lucide-react";
+// import { useApi } from "../hooks/useApi";
+
+// interface Visitor {
+//   _id: string;
+//   name: string;
+//   photo?: string;
+//   email: string;
+//   mobileNo: string;
+//   meetWith: string;
+//   entryTime: Date;
+//   exitTime?: string;
+//   status: string;
+//   electronicItems: {
+//     _id: string;
+//     name: string;
+//     photo?: string;
+//     serialNumber: string;
+//   }[];
+//   uniqueCode?: string;
+// };
+// interface ApiResponse {
+//   data: any;
+//   visitors: Visitor[];
+// }
+
+// interface ExistProcessProps {
+//   officeId: string | null;
+// }
+
+// export function ExitProcess({ officeId}: ExistProcessProps) {
+//   const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
+//   const [exitCode, setExitCode] = useState("");
+//   const [exitStatus, setExitStatus] = useState<"idle" | "success" | "error">(
+//     "idle"
+//   );
+//   const [errorMessage, setErrorMessage] = useState("");
+//   const { callApi, loading } = useApi<ApiResponse>();
+//   const [visitors, setVisitors] = React.useState<Visitor[]>([]);
+//   const [currentPage, setCurrentPage] = React.useState(1);
+//   const [totalPages, setTotalPages] = React.useState(0);  
+//   const [copied, setCopied] = useState(false);
+//   const [showTooltip, setShowTooltip] = useState(false);  const pageSize = 30;
+
+//   const formatTime = (date: Date) =>
+//     new Date(date).toLocaleTimeString("en-IN", {
+//       hour: "2-digit",
+//       minute: "2-digit",
+//       hour12: true,
+//     });
+
+//     // fetch visitors data
+//      useEffect(() => {
+//         // Fetch visitors data from API or state management
+//         const fetchVisitors = async () => {
+//           try {
+//             const {data,error} = await callApi(`/visitor/getAllVisitors?page=${currentPage}&limit=${pageSize}&search&status&officeId=${officeId}`, 
+//               { 
+//                 method: 'GET' 
+//               });
+//             if (data && data.data && Array.isArray(data.data.visitors)) {
+//               setVisitors(data?.data?.visitors || []);
+//               setTotalPages(data?.data?.total || 0);
+//               console.log('Visitors fetched successfully:', data?.data?.visitors);
+//             } else {
+//               console.error('Invalid data format:', data);
+//             }
+//             // Handle error if any      
+//             if (error) {
+//               console.error('Error fetching visitors:', error);
+//               return; 
+//             } 
+//           } catch (error) {
+//             console.error('Error fetching visitors:', error);
+//           }
+//         };
+//         fetchVisitors();
+//       }, [currentPage,exitStatus]);
+
+//   const handleExit = async() => {
+//     if (!selectedVisitor) return;
+//     const exitTime = new Date().toISOString();
+//     const payload = {
+//        "code": exitCode.toUpperCase(),
+//       //  "existTime": exitTime
+//     }
+//     const {data,error} = await callApi(`/visitor/checkOutVisitor`, 
+//           { 
+//             method: 'PUT',
+//             body:payload 
+//           });
+//     if (data) {
+//       setExitStatus("success");
+//       setTimeout(() => {
+//         setExitStatus("idle");
+//         setSelectedVisitor(null);
+//         setExitCode("");
+//       }, 2000);
+//     } else {
+//       setExitStatus(error);
+//       setErrorMessage("Invalid exit code!");
+//     }
+//   };
+
+//   const inVisitors = Array.isArray(visitors)
+//     ? visitors.filter(visitor => visitor.status === "In")
+//     : [];
+
+//   console.log('In visitors:', inVisitors);
+//  // Function to handle camera access
+//   const handleOpenCamera = async () => {
+//   try {
+//     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+//     // Do something with the stream, e.g., show in a video element
+//     const video = document.createElement("video");
+//     video.srcObject = stream;
+//     video.autoplay = true;
+//     video.style.width = "100%";
+//     video.style.height = "auto";
+//     // document.body.appendChild(video); // or append to a modal/container
+//   } catch (err) {
+//     console.error("Error accessing camera:", err);
+//     alert("Unable to access camera.");
+//   }
+// };
+
+//   return (
+//     <motion.div className="space-y-6">
+//       {/* Visitor Selection */}
+//       <Card className="bg-white shadow-lg border border-gray-200">
+//         <CardHeader className="bg-blue-600 rounded-t-lg">
+//           <CardTitle className="flex items-center gap-3 text-white text-xl">
+//             <Users className="h-6 w-6" />
+//             Select Visitor for Exit
+//           </CardTitle>
+//         </CardHeader>
+//         {/* <CardContent className="p-8">
+//           {visitorsdetails.filter(visitor => visitor.status != "In")? (
+//             <div className="text-center py-12">
+//               <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+//               <p className="text-gray-600 text-lg">
+//                 No visitors currently in the office.
+//               </p>
+//             </div>
+//           ) : (
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//               {visitorsdetails.map((visitor) => (
+//                 <Card
+//                   key={visitor._id}
+//                   className={`cursor-pointer transition-all duration-300 border-2 ${
+//                     selectedVisitor?._id === visitor._id
+//                       ? "border-blue-400 bg-blue-50 shadow-lg scale-105"
+//                       : "border-gray-200 hover:border-gray-300"
+//                   }`}
+//                   onClick={() => setSelectedVisitor(visitor)}
+//                 >
+//                   <CardContent className="p-6 flex items-center gap-3">
+//                     <Avatar className="h-12 w-12 ring-2 ring-gray-200">
+//                       <AvatarImage src={visitor.photo} />
+//                       <AvatarFallback className="bg-blue-600 text-white">
+//                         {visitor.name
+//                           .split(" ")
+//                           .map((n) => n[0])
+//                           .join("")
+//                           .toUpperCase()}
+//                       </AvatarFallback>
+//                     </Avatar>
+//                     <div className="flex-1">
+//                       <p className="font-medium text-gray-900">{visitor.name}</p>
+//                       <p className="text-sm text-gray-600">
+//                         Meeting: {visitor.meetWith}
+//                       </p>
+//                       <div className="flex items-center gap-1 text-sm text-gray-500">
+//                         <Clock className="h-3 w-3" />
+//                         Entry: {formatTime(visitor.entryTime)}
+//                       </div>
+//                     </div>
+//                     {selectedVisitor?._id === visitor._id && (
+//                       <CheckCircle className="h-6 w-6 text-blue-600" />
+//                     )}
+//                   </CardContent>
+//                 </Card>
+//               ))}
+//             </div>
+//           )}
+//         </CardContent> */}
+//         <CardContent className="p-8">
+//           {visitors.length > 0 ? (
+//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//               {visitors
+//                 .filter(visitor => visitor.status === "In")
+//                 .map((visitor) => (
+//                   <Card
+//                     key={visitor._id}
+//                     className={`cursor-pointer transition-all duration-300 border-2 ${
+//                       selectedVisitor?._id === visitor._id
+//                         ? "border-blue-400 bg-blue-50 shadow-lg scale-105"
+//                         : "border-gray-200 hover:border-gray-300"
+//                     }`}
+//                     // onClick={() => setSelectedVisitor(visitor)}
+//                     onClick={() => 
+//                         setSelectedVisitor(prev => {
+//                           if(prev?._id === visitor._id) {
+//                             setExitCode(""); // clear exit code
+//                             return null;    // unselect
+//                           }
+//                           return visitor;   // select new
+//                         })
+//                       }
+//                   >
+//                     <CardContent className="p-6 flex items-center gap-3">
+//                       <Avatar className="h-12 w-12 ring-2 ring-gray-200">
+//                         <AvatarImage src={visitor.photo} />
+//                         <AvatarFallback className="bg-blue-600 text-white">
+//                           {visitor.name
+//                             .split(" ")
+//                             .map((n) => n[0])
+//                             .join("")
+//                             .toUpperCase()}
+//                         </AvatarFallback>
+//                       </Avatar>
+//                       <div className="flex-1">
+//                         <p className="font-medium text-gray-900">{visitor.name}</p>
+//                         <p className="text-sm text-gray-600">
+//                           Meeting: {visitor.meetWith}
+//                         </p>
+//                         <div className="flex items-center gap-1 text-sm text-gray-500">
+//                           <Clock className="h-3 w-3" />
+//                           Entry: {formatTime(visitor.entryTime)}
+//                         </div>
+//                       </div>
+//                       {selectedVisitor?._id === visitor._id && (
+//                         <CheckCircle className="h-6 w-6 text-blue-600" />
+//                       )}
+//                     </CardContent>
+//                   </Card>
+//                 ))}
+//             </div>) : (
+//             <div className="text-center py-12">
+//               <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+//               <p className="text-gray-600 text-lg">
+//                 No visitors currently in the office.
+//               </p>
+//             </div>
+//           )}
+//         </CardContent>
+//       </Card>
+
+//       {/* Exit Code Entry */}
+//       <AnimatePresence>
+//         {selectedVisitor && (
+//           <motion.div
+//             initial={{ opacity: 0, height: 0 }}
+//             animate={{ opacity: 1, height: "auto" }}
+//             exit={{ opacity: 0, height: 0 }}
+//             transition={{ duration: 0.5 }}
+//           >
+//             <Card className="bg-white shadow-lg border border-gray-200">
+//               <CardHeader className="bg-gray-700 rounded-t-lg">
+//                 <CardTitle className="flex items-center gap-3 text-white text-xl">
+//                   <LogOut className="h-6 w-6" />
+//                   Exit Verification
+//                 </CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-8 space-y-6">
+//                 <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-xl border border-gray-200">
+//                   <Avatar className="h-16 w-16 ring-2 ring-gray-200">
+//                     <AvatarImage src={selectedVisitor.photo} />
+//                     <AvatarFallback className="bg-blue-600 text-white text-lg">
+//                       {selectedVisitor.name
+//                         .split(" ")
+//                         .map((n) => n[0])
+//                         .join("")
+//                         .toUpperCase()}
+//                     </AvatarFallback>
+//                   </Avatar>
+//                   <div className="flex-1">
+//                     <h3 className="font-semibold text-xl text-gray-900">
+//                       {selectedVisitor.name}
+//                     </h3>
+//                     <p className="text-gray-600">
+//                       Meeting with: {selectedVisitor.meetWith}
+//                     </p>
+//                     <p className="text-sm text-gray-500">
+//                       Phone: {selectedVisitor.mobileNo}
+//                     </p>
+//                   </div>
+//                   {/* <Badge className="bg-success shadow-md text-lg px-4 py-2">
+//                     Exit Code: {selectedVisitor.uniqueCode || "N/A"}
+//                   </Badge> */}
+//                  <div
+//                     className="relative inline-block"
+//                     onMouseEnter={() => setShowTooltip(true)}
+//                     onMouseLeave={() => setShowTooltip(false)}
+//                   >
+//                     <Badge
+//                       className="bg-success shadow-md text-lg px-4 py-2 cursor-pointer select-none"
+//                       onClick={() => {
+//                         const code = selectedVisitor.uniqueCode || "";
+//                         if (!code) return;
+//                         navigator.clipboard.writeText(code);
+//                         setCopied(true);
+//                         setTimeout(() => setCopied(false), 1500);
+//                       }}
+//                     >
+//                       Exit Code: {selectedVisitor.uniqueCode || "N/A"} {copied && "✅"}
+//                     </Badge>
+
+//                     {/* Custom Tooltip */}
+//                     {showTooltip && (
+//                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-md shadow-md whitespace-nowrap">
+//                         {copied ? "Copied!" : "Click to copy"}
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+
+//                 <Label htmlFor="exitCode" className="text-gray-700 text-lg">
+//                   Enter Exit Code
+//                 </Label>
+//                 <div className="flex gap-4">
+//                   <Input
+//                     id="exitCode"
+//                     value={exitCode}
+//                     onChange={(e) => setExitCode(e.target.value.toUpperCase())}
+//                     placeholder="Enter 8-digit code"
+//                     maxLength={8}
+//                     className="flex-1 font-mono text-xl text-center bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20 h-14"
+//                   />
+                  
+//                    {/* Camera button */}
+//                   <Button
+//                     onClick={handleOpenCamera}
+//                     variant="outline"
+//                     className="h-14 w-14 flex items-center justify-center p-2"
+//                   >
+//                     <Camera className="h-6 w-6 text-gray-700" />
+//                   </Button>
+//                   <Button
+//                     onClick={handleExit}
+//                     disabled={exitCode.length !== 8 || exitStatus === "success"}
+//                     className={`px-8 h-14 text-lg ${
+//                       exitStatus === "success"
+//                         ? "bg-success"
+//                         : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+//                     }`}
+//                   >
+//                     {exitStatus === "success" ? "Success" : "Process Exit"}
+//                   </Button>
+//                 </div>
+
+//                 <AnimatePresence>
+//                   {exitStatus === "success" && (
+//                     <Alert className="bg-green-50 border-green-200 mt-4">
+//                       <CheckCircle className="h-4 w-4 text-green-600" />
+//                       <AlertDescription className="text-green-700">
+//                         Visitor exit processed successfully!{" "}
+//                         {selectedVisitor.name} has been checked out.
+//                       </AlertDescription>
+//                     </Alert>
+//                   )}
+//                   {exitStatus === "error" && (
+//                     <Alert className="bg-red-50 border-red-200 mt-4">
+//                       <XCircle className="h-4 w-4 text-red-600" />
+//                       <AlertDescription className="text-red-700">
+//                         {errorMessage}
+//                       </AlertDescription>
+//                     </Alert>
+//                   )}
+//                 </AnimatePresence>
+//               </CardContent>
+//             </Card>
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
+//     </motion.div>
+//   );
+// }
+
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -521,11 +928,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Alert, AlertDescription } from "./ui/alert";
 import {
   LogOut,
@@ -535,9 +938,9 @@ import {
   XCircle,
   Camera,
   Users,
-  Copy
 } from "lucide-react";
 import { useApi } from "../hooks/useApi";
+import jsQR from "jsqr"; 
 
 interface Visitor {
   _id: string;
@@ -556,7 +959,8 @@ interface Visitor {
     serialNumber: string;
   }[];
   uniqueCode?: string;
-};
+}
+
 interface ApiResponse {
   data: any;
   visitors: Visitor[];
@@ -566,19 +970,21 @@ interface ExistProcessProps {
   officeId: string | null;
 }
 
-export function ExitProcess({ officeId}: ExistProcessProps) {
+export function ExitProcess({ officeId }: ExistProcessProps) {
   const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
   const [exitCode, setExitCode] = useState("");
-  const [exitStatus, setExitStatus] = useState<"idle" | "success" | "error">(
-    "idle"
-  );
+  const [exitStatus, setExitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const { callApi, loading } = useApi<ApiResponse>();
-  const [visitors, setVisitors] = React.useState<Visitor[]>([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [totalPages, setTotalPages] = React.useState(0);  
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [copied, setCopied] = useState(false);
-  const pageSize = 30;
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const pageSize = 3;
 
   const formatTime = (date: Date) =>
     new Date(date).toLocaleTimeString("en-IN", {
@@ -587,110 +993,243 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
       hour12: true,
     });
 
-    // fetch visitors data
-     useEffect(() => {
-        // Fetch visitors data from API or state management
-        const fetchVisitors = async () => {
-          try {
-            const {data,error} = await callApi(`/visitor/getAllVisitors?page=${currentPage}&limit=${pageSize}&search&status&officeId=${officeId}`, 
-              { 
-                method: 'GET' 
-              });
-            if (data && data.data && Array.isArray(data.data.visitors)) {
-              setVisitors(data?.data?.visitors || []);
-              setTotalPages(data?.data?.total || 0);
-              console.log('Visitors fetched successfully:', data?.data?.visitors);
-            } else {
-              console.error('Invalid data format:', data);
-            }
-            // Handle error if any      
-            if (error) {
-              console.error('Error fetching visitors:', error);
-              return; 
-            } 
-          } catch (error) {
-            console.error('Error fetching visitors:', error);
-          }
-        };
-        fetchVisitors();
-      }, [currentPage,exitStatus]);
+  // Fetch visitors
+  const fetchVisitors = async (page: number) => {
+    if (!officeId) return;
+    setIsFetching(true);
+    try {
+      const { data, error } = await callApi(
+        `/visitor/getAllVisitors?page=${page}&limit=${pageSize}&officeId=${officeId}&search=${encodeURIComponent(searchTerm)}`,
+        { method: "GET" }
+      );
 
-  const handleExit = async() => {
-    if (!selectedVisitor) return;
-    const exitTime = new Date().toISOString();
-    const payload = {
-       "code": exitCode.toUpperCase(),
-      //  "existTime": exitTime
+      if (data && Array.isArray(data.data.visitors)) {
+        setVisitors((prev) => {
+          const combined = page === 1 ? data.data.visitors : [...prev, ...data.data.visitors];
+          // remove duplicates by _id
+          const uniqueVisitors = combined.filter(
+            (v: { _id: any; }, index: any, self: any[]) => index === self.findIndex((t) => t._id === v._id)
+          );
+          return uniqueVisitors;
+        });
+        setTotalPages(data.data.total || 0);
+      }
+      if (error) console.error(error);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsFetching(false);
     }
-    const {data,error} = await callApi(`/visitor/checkOutVisitor`, 
-          { 
-            method: 'PUT',
-            body:payload 
-          });
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    setVisitors([]);
+    setCurrentPage(1);
+    fetchVisitors(1);
+  }, [officeId, searchTerm]);
+
+  // Fetch next page
+  useEffect(() => {
+    if (currentPage > 1) fetchVisitors(currentPage);
+  }, [currentPage]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          currentPage * pageSize < totalPages &&
+          !isFetching
+        ) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    const sentinel = document.getElementById("scroll-sentinel");
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+    };
+  }, [currentPage, totalPages, isFetching]);
+
+  // Handle exit
+  const handleExit = async () => {
+    if (!selectedVisitor) return;
+    const payload = { code: exitCode.toUpperCase() };
+    const { data, error } = await callApi(`/visitor/checkOutVisitor`, {
+      method: "PUT",
+      body: payload,
+    });
     if (data) {
       setExitStatus("success");
       setTimeout(() => {
         setExitStatus("idle");
         setSelectedVisitor(null);
         setExitCode("");
+        setVisitors([]);
+        setCurrentPage(1);
+        fetchVisitors(1);
       }, 2000);
     } else {
-      setExitStatus(error);
+      setExitStatus("error");
       setErrorMessage("Invalid exit code!");
     }
   };
 
-  const inVisitors = Array.isArray(visitors)
-    ? visitors.filter(visitor => visitor.status === "In")
-    : [];
+  // const handleOpenCamera = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  //     const video = document.createElement("video");
+  //     video.srcObject = stream;
+  //     video.autoplay = true;
+  //     video.style.width = "100%";
+  //     video.style.height = "auto";
+  //     // append video to a modal or container
+  //   } catch (err) {
+  //     console.error("Error accessing camera:", err);
+  //     alert("Unable to access camera.");
+  //   }
+  // };
 
-  console.log('In visitors:', inVisitors);
- // Function to handle camera access
   const handleOpenCamera = async () => {
+    let scannedCode = "";
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    // Do something with the stream, e.g., show in a video element
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     const video = document.createElement("video");
     video.srcObject = stream;
+    video.setAttribute("playsinline", "true"); // iOS fix
     video.autoplay = true;
-    video.style.width = "100%";
-    video.style.height = "auto";
-    // document.body.appendChild(video); // or append to a modal/container
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const tick = () => {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+        if (imageData) {
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code) {
+            console.log("QR Code found:", code.data);
+            const parsed = JSON.parse(code.data);
+            scannedCode = parsed.uniqueCode?.toUpperCase() || "";
+
+            setExitCode(scannedCode);
+
+            // 🚀 Auto-call handleExit once QR is scanned
+            handleExit();
+
+            // stop scanning & stop camera
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+        }
+      }
+      requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
   } catch (err) {
     console.error("Error accessing camera:", err);
     alert("Unable to access camera.");
   }
-};
+  };
+
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+    const timeout = setTimeout(() => {
+      setVisitors([]);
+      setCurrentPage(1);
+      fetchVisitors(1);
+    }, 500); // debounce 500ms
+    setSearchTimeout(timeout);
+  };
+
+  const inVisitors = visitors.filter((v) => v.status === "In");
 
   return (
     <motion.div className="space-y-6">
+      {/* Search Input */}
+      <div className="mb-4 flex items-center gap-2">
+        <Input
+          value={searchTerm}
+          onChange={handleSearchChange}
+          placeholder="Search by name..."
+          className="flex-1"
+        />
+        <Button
+          onClick={() => {
+            setVisitors([]);
+            setCurrentPage(1);
+            fetchVisitors(1);
+          }}
+        >
+          Search
+        </Button>
+      </div>
+
       {/* Visitor Selection */}
       <Card className="bg-white shadow-lg border border-gray-200">
-        <CardHeader className="bg-blue-600 rounded-t-lg">
+        {/* <CardHeader className="bg-blue-600 rounded-t-lg">
           <CardTitle className="flex items-center gap-3 text-white text-xl">
             <Users className="h-6 w-6" />
             Select Visitor for Exit
+             <Button
+                    onClick={handleOpenCamera}
+                    variant="outline"
+                    className="h-14 w-14 flex items-center justify-center p-2"
+                  >
+                    <Camera className="h-6 w-6 text-gray-700" />
+            </Button>
           </CardTitle>
-        </CardHeader>
-        {/* <CardContent className="p-8">
-          {visitorsdetails.filter(visitor => visitor.status != "In")? (
-            <div className="text-center py-12">
-              <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg">
-                No visitors currently in the office.
-              </p>
-            </div>
-          ) : (
+        </CardHeader> */}
+        <CardHeader className="bg-blue-600 rounded-t-lg">
+        <CardTitle className="flex items-center justify-between text-white text-xl w-full">
+          {/* Left side */}
+          <div className="flex items-center gap-3">
+            <Users className="h-6 w-6" />
+            Select Visitor for Exit
+          </div>
+
+          {/* Right side */}
+          <Button
+            onClick={handleOpenCamera}
+            variant="outline"
+            className="h-14 px-4 flex items-center gap-2 bg-white text-gray-700 font-medium"
+          >
+            <Camera className="h-6 w-6" />
+            <span>Scan QR</span>
+          </Button>
+        </CardTitle>
+      </CardHeader>
+        <CardContent className="p-8">
+          {inVisitors.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visitorsdetails.map((visitor) => (
+              {inVisitors.map((visitor, idx) => (
                 <Card
-                  key={visitor._id}
+                  key={`${visitor._id}-${idx}`}
                   className={`cursor-pointer transition-all duration-300 border-2 ${
                     selectedVisitor?._id === visitor._id
                       ? "border-blue-400 bg-blue-50 shadow-lg scale-105"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
-                  onClick={() => setSelectedVisitor(visitor)}
+                  onClick={() =>
+                    setSelectedVisitor((prev) =>
+                      prev?._id === visitor._id ? (setExitCode(""), null) : visitor
+                    )
+                  }
                 >
                   <CardContent className="p-6 flex items-center gap-3">
                     <Avatar className="h-12 w-12 ring-2 ring-gray-200">
@@ -720,60 +1259,7 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
                 </Card>
               ))}
             </div>
-          )}
-        </CardContent> */}
-        <CardContent className="p-8">
-          {visitors.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visitors
-                .filter(visitor => visitor.status === "In")
-                .map((visitor) => (
-                  <Card
-                    key={visitor._id}
-                    className={`cursor-pointer transition-all duration-300 border-2 ${
-                      selectedVisitor?._id === visitor._id
-                        ? "border-blue-400 bg-blue-50 shadow-lg scale-105"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    // onClick={() => setSelectedVisitor(visitor)}
-                    onClick={() => 
-                        setSelectedVisitor(prev => {
-                          if(prev?._id === visitor._id) {
-                            setExitCode(""); // clear exit code
-                            return null;    // unselect
-                          }
-                          return visitor;   // select new
-                        })
-                      }
-                  >
-                    <CardContent className="p-6 flex items-center gap-3">
-                      <Avatar className="h-12 w-12 ring-2 ring-gray-200">
-                        <AvatarImage src={visitor.photo} />
-                        <AvatarFallback className="bg-blue-600 text-white">
-                          {visitor.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{visitor.name}</p>
-                        <p className="text-sm text-gray-600">
-                          Meeting: {visitor.meetWith}
-                        </p>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          Entry: {formatTime(visitor.entryTime)}
-                        </div>
-                      </div>
-                      {selectedVisitor?._id === visitor._id && (
-                        <CheckCircle className="h-6 w-6 text-blue-600" />
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>) : (
+          ) : (
             <div className="text-center py-12">
               <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 text-lg">
@@ -781,6 +1267,7 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
               </p>
             </div>
           )}
+          <div id="scroll-sentinel" className="h-10"></div>
         </CardContent>
       </Card>
 
@@ -823,22 +1310,29 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
                       Phone: {selectedVisitor.mobileNo}
                     </p>
                   </div>
-                  {/* <Badge className="bg-success shadow-md text-lg px-4 py-2">
-                    Exit Code: {selectedVisitor.uniqueCode || "N/A"}
-                  </Badge> */}
-                  <Badge
-                    className="bg-success shadow-md text-lg px-4 py-2 cursor-pointer select-none"
-                    onClick={() => {
-                      const code = selectedVisitor.uniqueCode || "";
-                      if (!code) return;
-                      navigator.clipboard.writeText(code);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 1500);
-                    }}
-                    title="Click to copy"
+                  <div
+                    className="relative inline-block"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
                   >
-                    Exit Code: {selectedVisitor.uniqueCode || "N/A"} {copied && "✅"}
-                  </Badge>
+                    <Badge
+                      className="bg-success shadow-md text-lg px-4 py-2 cursor-pointer select-none"
+                      onClick={() => {
+                        const code = selectedVisitor.uniqueCode || "";
+                        if (!code) return;
+                        navigator.clipboard.writeText(code);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1500);
+                      }}
+                    >
+                      Exit Code: {selectedVisitor.uniqueCode || "N/A"} {copied && "✅"}
+                    </Badge>
+                    {showTooltip && (
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-md shadow-md whitespace-nowrap">
+                        {copied ? "Copied!" : "Click to copy"}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Label htmlFor="exitCode" className="text-gray-700 text-lg">
@@ -853,8 +1347,6 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
                     maxLength={8}
                     className="flex-1 font-mono text-xl text-center bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20 h-14"
                   />
-                  
-                   {/* Camera button */}
                   <Button
                     onClick={handleOpenCamera}
                     variant="outline"
@@ -880,8 +1372,7 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
                     <Alert className="bg-green-50 border-green-200 mt-4">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <AlertDescription className="text-green-700">
-                        Visitor exit processed successfully!{" "}
-                        {selectedVisitor.name} has been checked out.
+                        Visitor exit processed successfully! {selectedVisitor.name} has been checked out.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -902,3 +1393,5 @@ export function ExitProcess({ officeId}: ExistProcessProps) {
     </motion.div>
   );
 }
+
+

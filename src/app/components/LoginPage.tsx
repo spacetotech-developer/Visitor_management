@@ -68,30 +68,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
-  // const itemVariants = {
-  //   hidden: { opacity: 0, y: 30 },
-  //   visible: { 
-  //     opacity: 1, 
-  //     y: 0,
-  //     transition: {
-  //       duration: 0.5,
-  //       ease: "easeOut"
-  //     }
-  //   }
-  // };
-
-  // const floatingIconVariants = {
-  //   float: {
-  //     y: [-10, 10, -10],
-  //     rotate: [0, 5, -5, 0],
-  //     transition: {
-  //       duration: 4,
-  //       repeat: Infinity,
-  //       ease: [0.42, 0, 0.58, 1] // cubic-bezier for easeInOut
-  //     }
-  //   }
-  // };
-
   const floatingIconVariants = {
   float: {
     y: [-10, 10, -10],
@@ -279,7 +255,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     >
                       {isLoading ? (
                         <motion.div
-                          animate={{ rotate: 360 }}
+                          // animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="flex items-center gap-2"
                         >
