@@ -1634,7 +1634,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                 
                 // Directly call the API for QR code case
                 const payload = { code: scannedCode };
-                const { data, error } = await callApi(`/visitor/checkOutByCode`, {
+                const { data, error } = await callApi(`/visitor/checkOutVisitor`, {
                   method: "PUT",
                   body: payload,
                 });
