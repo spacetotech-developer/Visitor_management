@@ -1618,78 +1618,67 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
-        
-        // if (code) {
-        //   try {
-        //     // Try to parse as JSON first (if it's a structured QR)
-        //     const parsedData = JSON.parse(code.data);
-        //     const scannedCode = parsedData.uniqueCode?.toUpperCase() || "";
-        //     console.log("QR Code found:", scannedCode);
-        //     if (scannedCode) {
-        //       setExitCode(scannedCode);
-        //       stopCamera();
-        //       setShowCamera(false);
-        //       // Auto-submit if we have a selected visitor
-        //       // if (selectedVisitor) {
-        //         handleExit();
-        //       // }
-        //       return;
-        //     }
-        //   } catch (e) {
-        //     // If not JSON, treat as plain text code
-        //     const scannedCode = code.data.toUpperCase();
-        //     setExitCode(scannedCode);
-        //     stopCamera();
-        //     setShowCamera(false);
-        //     // Auto-submit if we have a selected visitor
-        //     // if (selectedVisitor) {
-        //       handleExit();
-        //     // }
-        //     return;
-        //   }
-        // }
-        // Replace the QR code scanning logic with this:
         if (code) {
           try {
-            // Try to parse as JSON first (if it's a structured QR)
-            const parsedData = JSON.parse(code.data);
+            const qrData = code.data;
             
-            // Check if this is the full API response format
-            if (parsedData.data && parsedData.data.uniqueCode) {
-              const scannedCode = parsedData.data.uniqueCode.toUpperCase();
-              console.log("QR Code found in API response:", scannedCode);
-              setExitCode(scannedCode);
-              stopCamera();
-              setShowCamera(false);
-              if (selectedVisitor) {
-                handleExit();
+            // Check if it's a URL with a code parameter
+            if (qrData.includes('getVisitorByCode?code=')) {
+              const url = new URL(qrData);
+              const codeParam = url.searchParams.get('code');
+              if (codeParam) {
+                const scannedCode = codeParam.toUpperCase();
+                console.log("QR Code extracted from URL:", scannedCode);
+                setExitCode(scannedCode);
+                stopCamera();
+                setShowCamera(false);
+                if (selectedVisitor) {
+                  handleExit();
+                }
+                return;
               }
-              return;
             }
-            // Check if it's a simple object with uniqueCode
-            else if (parsedData.uniqueCode) {
-              const scannedCode = parsedData.uniqueCode.toUpperCase();
-              console.log("QR Code found in simple object:", scannedCode);
-              setExitCode(scannedCode);
-              stopCamera();
-              setShowCamera(false);
-              if (selectedVisitor) {
+            // If not a URL, try to parse as JSON
+            else {
+              try {
+                const parsedData = JSON.parse(qrData);
+                if (parsedData.data && parsedData.data.uniqueCode) {
+                  const scannedCode = parsedData.data.uniqueCode.toUpperCase();
+                  console.log("QR Code found in API response:", scannedCode);
+                  setExitCode(scannedCode);
+                  stopCamera();
+                  setShowCamera(false);
+                  if (selectedVisitor) {
+                    handleExit();
+                  }
+                  return;
+                }
+                else if (parsedData.uniqueCode) {
+                  const scannedCode = parsedData.uniqueCode.toUpperCase();
+                  console.log("QR Code found in simple object:", scannedCode);
+                  setExitCode(scannedCode);
+                  stopCamera();
+                  setShowCamera(false);
+                  if (selectedVisitor) {
+                    handleExit();
+                  }
+                  return;
+                }
+              } catch (e) {
+                // If not JSON, treat as plain text code
+                const scannedCode = qrData.toUpperCase();
+                console.log("QR Code found as plain text:", scannedCode);
+                setExitCode(scannedCode);
+                stopCamera();
+                setShowCamera(false);
+                // if (selectedVisitor) {
+                // }
                 handleExit();
+                return;
               }
-              return;
             }
-          } catch (e) {
-            // If not JSON, treat as plain text code
-            const scannedCode = code.data.toUpperCase();
-            console.log("QR Code found as plain text:", scannedCode);
-            setExitCode(scannedCode);
-            stopCamera();
-            setShowCamera(false);
-            handleExit();
-            // if (selectedVisitor) {
-            //   handleExit();
-            // }
-            return;
+          } catch (err) {
+            console.error("Error processing QR code:", err);
           }
         }
       }
