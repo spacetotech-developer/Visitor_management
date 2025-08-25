@@ -1630,9 +1630,9 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
               stopCamera();
               setShowCamera(false);
               // Auto-submit if we have a selected visitor
-              if (selectedVisitor) {
+              // if (selectedVisitor) {
                 handleExit();
-              }
+              // }
               return;
             }
           } catch (e) {
