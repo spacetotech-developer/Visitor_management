@@ -36,6 +36,7 @@ interface VisitorTableProps {
     totalVisitors: number;
     totalVisitorsIn: number;
     totalVisitorsOut: number;
+    totalElectronicItems: number;
   };
 }
 
@@ -202,7 +203,8 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, delay: 0.4 }}
                   >
-                    {visitors.reduce((total, visitor) => total + visitor.electronicItems.length, 0)}
+                    {visitorState?.totalElectronicItems || 0}
+                    {/* {visitors.reduce((total, visitor) => total + visitor.electronicItems.length, 0)} */}
                   </motion.p>
                 </div>
               </div>

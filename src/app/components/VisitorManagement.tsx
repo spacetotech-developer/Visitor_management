@@ -326,6 +326,7 @@ interface VisitorState {
   totalVisitors: number;
   totalVisitorsIn: number;
   totalVisitorsOut: number;
+  totalElectronicItems: number;
 }
 
 interface VisitorManagementProps {
@@ -349,6 +350,7 @@ export function VisitorManagement({
   const selectedOffice = selectedOfficeFromUrl;
   const [currentView, setCurrentView] = useState<"entry" | "dashboard" | "exit">("entry");
   const [visitorState, setVisitorState] = useState<VisitorState | undefined>(undefined);
+  const [visitors, setVisitors] = useState(false);
   const { callApi } = useApi<ApiResponse>();
   const router = useRouter();
   const { offices,userInfo } = useContext(DataContext)!;
@@ -366,6 +368,7 @@ export function VisitorManagement({
               totalVisitors: data.data.total.totalVisitors,
               totalVisitorsIn: data.data.total.totalVisitorsIn,
               totalVisitorsOut: data.data.total.totalVisitorsOut,
+              totalElectronicItems: data.data.dayStats.electronicCount,
             });
           } else {
             console.error("Invalid data format:", data);
@@ -382,7 +385,7 @@ export function VisitorManagement({
       fetchVisitors();
       // Log the fetching action
       console.log('Fetching visitors data...');
-    }, []);
+    }, [visitors]);
 
   // Safe find
   const selectedOfficeInfo = offices.find(
@@ -416,6 +419,12 @@ export function VisitorManagement({
       method: "POST",
       body: payload,
     });
+    if (data) {
+      // Optionally update local state or refetch visitors
+      console.log("Visitor added:", data);
+      setVisitors(true);
+      // You might want to refetch the visitor stats here
+    }
    
     if (error) {
       console.error("Error adding visitor:", error);
