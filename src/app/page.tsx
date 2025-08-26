@@ -174,16 +174,36 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LoginPage } from "./components/LoginPage";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  exp: number; // expiry in seconds
+}
 
 export default function Login() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
+    const isTokenValid = (token: string) => {
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        if (decoded.exp * 1000 > Date.now()) {
+          return true; // still valid
+        }
+      } catch (e) {
+        return false;
+      }
+      return false;
+    };
+ 
+   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
+    if (token && isTokenValid(token)) {
       setIsAuthenticated(true);
-      router.push("/office"); // redirect if already logged in
+      router.push("/office"); // valid token → go office
+    } else {
+      setIsAuthenticated(false);
+      router.push("/"); // no token or expired → go login
     }
   }, [router]);
 
