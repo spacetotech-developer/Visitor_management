@@ -71,19 +71,19 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
        {/* User Header */}
       {/* {(UserInfo || onLogout) && (
         <motion.div 
-          className="absolute top-0 right-0 z-20 p-6"
+          className="absolute top-0 right-0 z-20 p-6 md:p-6 w-full md:w-auto" 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between w-full md:justify-end gap-4">
             {UserInfo && (
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Badge 
-                  className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md"
+                  className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md flex items-center"
                 >
                   <UserCheck className="mr-2 h-4 w-4" />
                   {UserInfo.username}
@@ -108,47 +108,6 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
           </div>
         </motion.div>
       )} */}
-      {(UserInfo || onLogout) && (
-  <motion.div 
-    className="absolute top-0 right-0 z-20 p-6 md:p-6 w-full md:w-auto" 
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-  >
-    <div className="flex items-center justify-between w-full md:justify-end gap-4">
-      {UserInfo && (
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Badge 
-            className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md flex items-center"
-          >
-            <UserCheck className="mr-2 h-4 w-4" />
-            {UserInfo.username}
-          </Badge>
-        </motion.div>
-      )}
-      {onLogout && (
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Button 
-            variant="outline" 
-            onClick={onLogout}
-            className="flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 bg-white shadow-md"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </Button>
-        </motion.div>
-      )}
-    </div>
-  </motion.div>
-)}
-
-
 
       {/* Subtle Floating Elements */}
       <div className="absolute inset-0 pointer-events-none">
@@ -226,55 +185,6 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
                 <p className="text-gray-600 text-lg">Choose the office where you'll be working today</p>
               </CardHeader>
               <CardContent className="space-y-4 p-8">
-                {/* {offices.map((office, index) => (
-                  <motion.div
-                    key={office._id}
-                    variants={itemVariants}
-                    whileHover={{ 
-                      scale: 1.01,
-                      transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <Card 
-                      className="cursor-pointer transition-all duration-300 hover:shadow-lg bg-white border-2 border-gray-200 hover:border-blue-400 group"
-                      onClick={() => onSelectOffice(office._id)}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 flex-1">
-                            <motion.div 
-                              className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-md"
-                              whileHover={{ rotate: 5 }}
-                            >
-                              <Building2 className="h-8 w-8 text-white" />
-                            </motion.div>
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                                {office.officeName}
-                              </h3>
-                              <div className="flex items-center gap-2 text-gray-600 group-hover:text-blue-500 transition-colors">
-                                <MapPin className="h-4 w-4" />
-                                <span>{office.officeAddress}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <motion.div
-                            whileHover={{ x: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            <Button 
-                              className="bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200 px-8"
-                              size="lg"
-                            >
-                              Select Office
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))} */}
                {offices.map((office) => (
                 <motion.div
                   key={office._id}
@@ -326,14 +236,65 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
                 </motion.div>
               ))}
 
+              {/* Desktop Header (top-right) */}
+              {(UserInfo || onLogout) && (
+                <motion.div 
+                  className="absolute top-0 right-0 z-20 p-6 hidden md:flex items-center gap-4"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {UserInfo && (
+                    <Badge className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md flex items-center">
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      {UserInfo.username}
+                    </Badge>
+                  )}
+                  {onLogout && (
+                    <Button 
+                      variant="outline" 
+                      onClick={onLogout}
+                      className="flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 bg-white shadow-md"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </Button>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Mobile Header (above pagination, same row) */}
+              {(UserInfo || onLogout) && (
+                <div className="flex md:hidden justify-between items-center mb-4 w-full px-2">
+                  {UserInfo ? (
+                    <Badge className="px-4 py-2 text-sm bg-blue-600 border-0 shadow-md flex items-center">
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      {UserInfo.username}
+                    </Badge>
+                  ) : <div />} {/* Empty div to keep space if only logout */}
+                  
+                  {onLogout && (
+                    <Button 
+                      variant="outline" 
+                      onClick={onLogout}
+                      className="flex items-center gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 bg-white shadow-md"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </Button>
+                  )}
+                </div>
+              )}
+
                  {/* Pagination */}
-              {/* <div className="flex justify-between items-center mt-4">
-                <span className="text-sm">
+              {/* <div className="flex flex-col md:flex-row md:justify-between items-center gap-2 mt-4"> */}
+                {/* Entries info */}
+                {/* <span className="text-sm text-center md:text-left">
                   Showing {startIndex + 1} to {Math.min(startIndex + pageSize, offices.length)} of{" "}
                   {offices.length} entries
-                </span>
-
-                <div className="flex space-x-2">
+                </span> */}
+                {/* Pagination buttons */}
+                {/* <div className="flex flex-wrap justify-center md:justify-end gap-2">
                   <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => p - 1)}
@@ -341,6 +302,7 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
                   >
                     Previous
                   </button>
+
                   {Array.from({ length: totalPages }, (_, i) => (
                     <button
                       key={i}
@@ -352,6 +314,7 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
                       {i + 1}
                     </button>
                   ))}
+
                   <button
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => p + 1)}
@@ -361,46 +324,6 @@ export function OfficeSelector({ offices, currentPage, startIndex, totalPages, p
                   </button>
                 </div>
               </div> */}
-              <div className="flex flex-col md:flex-row md:justify-between items-center gap-2 mt-4">
-                {/* Entries info */}
-                <span className="text-sm text-center md:text-left">
-                  Showing {startIndex + 1} to {Math.min(startIndex + pageSize, offices.length)} of{" "}
-                  {offices.length} entries
-                </span>
-
-                {/* Pagination buttons */}
-                <div className="flex flex-wrap justify-center md:justify-end gap-2">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 border rounded ${
-                        currentPage === i + 1 ? "bg-blue-500 text-white" : ""
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-
-              
               </CardContent>
             </Card>
           </motion.div>

@@ -306,6 +306,7 @@ export interface ElectronicItem {
   name: string;
   serialNumber: string;
   photo?: string;
+  photoUrl?: string;
 }
 
 export interface Visitor {
@@ -523,34 +524,41 @@ export function VisitorManagement({
                 </motion.p>
               </div>
 
-              {/* Right: Badges & Buttons */}
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
-                {user && (
-                  <Badge className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-blue-600 border-0 shadow-md flex items-center whitespace-nowrap">
-                    <UserCheck className="mr-1 sm:mr-2 h-4 w-4" />
-                    {userInfo?.username}
+              {/* Right: Badges and Buttons split */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto justify-between">
+                {/* Left badges */}
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 mb-2 sm:mb-0">
+                  {user && (
+                    <Badge className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-blue-600 border-0 shadow-md flex items-center whitespace-nowrap">
+                      <UserCheck className="mr-1 sm:mr-2 h-4 w-4" />
+                      {userInfo?.username}
+                    </Badge>
+                  )}
+                  <Badge className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-green-600 border-0 shadow-md flex items-center whitespace-nowrap">
+                    <User className="mr-1 sm:mr-2 h-4 w-4" />
+                    {visitorState ? visitorState.totalVisitorsIn : 0} Active
                   </Badge>
-                )}
-                <Badge className="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm bg-green-600 border-0 shadow-md flex items-center whitespace-nowrap">
-                  <User className="mr-1 sm:mr-2 h-4 w-4" />
-                  {visitorState ? visitorState.totalVisitorsIn : 0} Active
-                </Badge>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push("/office")}
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-gray-300 text-gray-700 hover:bg-gray-50 whitespace-nowrap"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Change Office
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={onLogout}
-                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 whitespace-nowrap"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
+                </div>
+
+                {/* Right buttons */}
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/office")}
+                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-gray-300 text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Change Office
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={onLogout}
+                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 whitespace-nowrap"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </div>
               </div>
             </div>
           </motion.div>
