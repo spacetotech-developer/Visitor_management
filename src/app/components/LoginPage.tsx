@@ -8,9 +8,14 @@ import { Alert, AlertDescription } from './ui/alert';
 import { User, Lock, LogIn, Shield, Building2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
 import { setTokens } from '../utils/apiService';
+import { useToast } from './ui/toast';
 
 interface LoginPageProps {
   onLogin: (accessToken: string ) => void;
+}
+
+interface ApiResponse {
+  message:string
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -19,7 +24,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { callApi, loading } = useApi();
+  const { callApi, loading } = useApi<ApiResponse>();
+  const { showToast } = useToast();
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +57,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       setIsLoading(false);
       setTokens((data as any).data ?? data);
       onLogin((data as any).data ?? data);
+      showToast({
+        type: "success",
+        title: data.message,
+      });
     } else {
       setError(error ? error : 'Login failed. Please try again.');
       setIsLoading(false);

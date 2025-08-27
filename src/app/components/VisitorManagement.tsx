@@ -301,6 +301,7 @@ import { useApi } from "../hooks/useApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useContext } from "react";
 import { DataContext } from "../context/DataContext";
+import { useToast } from "./ui/toast";
 export interface ElectronicItem {
   id: string;
   name: string;
@@ -338,6 +339,7 @@ interface VisitorManagementProps {
 interface ApiResponse {
   data: any;
   total:number;
+  message:string
 }
 
 export function VisitorManagement({
@@ -354,6 +356,8 @@ export function VisitorManagement({
   const { callApi } = useApi<ApiResponse>();
   const router = useRouter();
   const { offices,userInfo } = useContext(DataContext)!;
+  const { showToast } = useToast();
+  const [changeVisitorStat,setChangeVisitorStat] = useState(false);
 
    useEffect(() => {
       // Fetch visitors data from API or state management
@@ -385,7 +389,7 @@ export function VisitorManagement({
       fetchVisitors();
       // Log the fetching action
       console.log('Fetching visitors data...');
-    }, [visitors]);
+    }, [visitors,changeVisitorStat]);
 
   // Safe find
   const selectedOfficeInfo = offices.find(
@@ -420,6 +424,10 @@ export function VisitorManagement({
       body: payload,
     });
     if (data) {
+      showToast({
+        type: "success",
+        title: data.message,
+      });
       // Optionally update local state or refetch visitors
       console.log("Visitor added:", data);
       setVisitors(true);
@@ -554,7 +562,7 @@ export function VisitorManagement({
                   <Button
                     variant="outline"
                     onClick={() => router.push("/office")}
-                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-gray-300 text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                    className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-gray-300 text-gray-700 hover:bg-black whitespace-nowrap"
                   >
                     <LogOut className="h-4 w-4" />
                     Change Office
@@ -591,7 +599,7 @@ export function VisitorManagement({
                 className={`px-6 py-3 text-base flex items-center gap-2 transition-all duration-300 ${
                   currentView === key
                     ? "bg-blue-600 hover:bg-blue-700 shadow-md"
-                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-black"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -612,7 +620,7 @@ export function VisitorManagement({
             >
               {currentView === "entry" && <VisitorForm onSubmit={addVisitor} />}
               {currentView === "dashboard" && <VisitorTable officeId={officeId} visitorState={visitorState}/>}
-              {currentView === "exit" && <ExitProcess officeId={officeId} />}
+              {currentView === "exit" && <ExitProcess officeId={officeId} setChangeVisitorStat={setChangeVisitorStat} />}
             </motion.div>
           </AnimatePresence>
         </div>

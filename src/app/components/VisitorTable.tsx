@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Clock, Mail, Phone, Monitor, User, TrendingUp, Users, Calendar } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
+import { useToast } from './ui/toast';
 interface Visitor {
   _id: string;
   name: string;
@@ -28,6 +29,7 @@ interface Visitor {
 interface ApiResponse {
   data: any;
   visitors: Visitor[];
+  message: string;
 }
 interface VisitorTableProps {
   officeId: string | null;
@@ -46,16 +48,25 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(0);  
   const pageSize = 5;
+  const {showToast} = useToast()
   
   useEffect(() => {
+    if (!officeId) return;
+    let called = false;
     // Fetch visitors data from API or state management
     const fetchVisitors = async () => {
+      if (called) return; // block 2nd call
+      called = true;
       try {
         const {data,error} = await callApi(`/visitor/getAllVisitors?page=${currentPage}&limit=${pageSize}&search&status&officeId=${officeId}`, 
           { 
             method: 'GET' 
           });
         if (data && data.data && Array.isArray(data.data.visitors)) {
+          showToast({
+            type:'success',
+            title:data.message
+          })
           setVisitors(data?.data?.visitors || []);
           setTotalPages(data?.data?.total || 0);
           console.log('Visitors fetched successfully:', data?.data?.visitors);
@@ -72,7 +83,7 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
       }
     };
     fetchVisitors();
-  }, [currentPage]);
+  }, [currentPage, officeId]);
 
   // Pagination logic
   const totalPageses = Math.ceil(totalPages! / pageSize);
@@ -216,7 +227,18 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
       {/* Visitors Table */}
       <motion.div variants={itemVariants}>
         <Card className="bg-white shadow-lg border border-gray-200">
-          <CardHeader className="bg-gray-700 rounded-t-lg">
+          {/* <CardHeader className="bg-gray-700 rounded-t-lg">
+            <CardTitle className="flex items-center justify-center gap-3 text-white text-xl py-4">
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
+                <TrendingUp className="h-6 w-6" />
+              </motion.div>
+              Visitor Records
+            </CardTitle>
+          </CardHeader> */}
+          <CardHeader className="bg-gray-700 rounded-t-lg flex items-center justify-center h-20 py-3">
             <CardTitle className="flex items-center gap-3 text-white text-xl">
               <motion.div
                 whileHover={{ rotate: 360 }}
@@ -227,6 +249,7 @@ export function VisitorTable({ officeId,visitorState}: VisitorTableProps) {
               Visitor Records
             </CardTitle>
           </CardHeader>
+
           <CardContent className="p-8">
             {visitors.length === 0 ? (
               <motion.div 

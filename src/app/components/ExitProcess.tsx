@@ -1421,6 +1421,7 @@ import {
 } from "lucide-react";
 import { useApi } from "../hooks/useApi";
 import jsQR from "jsqr"; 
+import { useToast } from "./ui/toast";
 
 interface Visitor {
   _id: string;
@@ -1444,13 +1445,14 @@ interface Visitor {
 interface ApiResponse {
   data: any;
   visitors: Visitor[];
+  message: string
 }
 
 interface ExistProcessProps {
   officeId: string | null;
-}
+  setChangeVisitorStat: (value: boolean) => void;}
 
-export function ExitProcess({ officeId }: ExistProcessProps) {
+export function ExitProcess({ officeId,setChangeVisitorStat }: ExistProcessProps) {
   const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
   const [exitCode, setExitCode] = useState("");
   const [exitStatus, setExitStatus] = useState<"idle" | "success" | "error">("idle");
@@ -1471,6 +1473,7 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const pageSize = 3;
+  const {showToast} = useToast();
 
   const formatTime = (date: Date) =>
     new Date(date).toLocaleTimeString("en-IN", {
@@ -1555,7 +1558,12 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
       body: payload,
     });
     if (data) {
+      showToast({
+        type:"success",
+        title:"Visitor checked out successfully"
+      })
       setExitStatus("success");
+      setChangeVisitorStat(true)
       setTimeout(() => {
         setExitStatus("idle");
         setSelectedVisitor(null);
@@ -1641,6 +1649,11 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
                 stopCamera();
                 setShowCamera(false);                 
                   if (data) {
+                    showToast({
+                      type:"success",
+                      title:"Visitor checked out successfully"
+                    })
+                    setChangeVisitorStat(true)
                     setExitStatus("success");
                     setTimeout(() => {
                       setExitStatus("idle");
@@ -1797,8 +1810,8 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
 
       {/* Visitor Selection */}
       <Card className="bg-white shadow-lg border border-gray-200">
-        <CardHeader className="bg-blue-600 rounded-t-lg">
-          <CardTitle className="flex items-center justify-between text-white text-xl w-full">
+        {/* <CardHeader className="bg-blue-600 rounded-t-lg">
+          <CardTitle className="flex items-center justify-center gap-6 text-white text-xl w-full">
             <div className="flex items-center gap-3">
               <Users className="h-6 w-6" />
               Select Visitor for Exit
@@ -1807,12 +1820,51 @@ export function ExitProcess({ officeId }: ExistProcessProps) {
               onClick={initCamera}
               variant="outline"
               className="h-14 px-4 flex items-center gap-2 bg-white text-gray-700 font-medium"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
             >
               <Camera className="h-6 w-6" />
               <span>Scan QR</span>
             </Button>
+             {showTooltip && (
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-md shadow-md whitespace-nowrap">
+                        {"Click to scan QR"}
+                      </div>
+                    )}
+          </CardTitle>
+        </CardHeader> */}
+        <CardHeader className="bg-blue-600 rounded-t-lg relative py-3">
+          <CardTitle className="flex flex-col sm:flex-row items-center justify-center gap-4 text-white text-xl w-full">
+            {/* Text with icon */}
+            <div className="flex items-center gap-3">
+              <Users className="h-6 w-6" />
+              Select Visitor for Exit
+            </div>
+
+            {/* Scan Button with Tooltip */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={initCamera}
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-gray-300 text-gray-700 whitespace-nowrap"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <Camera className="h-6 w-6" />
+                <span>Scan QR</span>
+              </Button>
+
+              {/* Tooltip */}
+              {showTooltip && (
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-md shadow-md whitespace-nowrap">
+                  Click to scan QR
+                </div>
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
+
+
         <CardContent className="p-8">
           {inVisitors.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -107,7 +107,8 @@ export const clearTokens = () => {
   accessToken = '';
   if (typeof window !== 'undefined') {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem('offices');
+    localStorage.removeItem('userInfo');
   }
 };
 
