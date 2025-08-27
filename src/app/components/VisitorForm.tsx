@@ -464,8 +464,8 @@ export function VisitorForm({ onSubmit }: VisitorFormProps) {
 
       {/* Electronic Items Section */}
       <motion.div variants={itemVariants}>
-        <Card className="bg-white shadow-lg border border-gray-200 flex items-center justify-center py-3">
-          <CardHeader className="bg-gray-700 rounded-t-lg">
+        <Card className="bg-white shadow-lg border border-gray-200">
+          <CardHeader className="bg-gray-700 rounded-t-lg justify-center py-3">
             <CardTitle className="flex items-center gap-3 text-white text-xl">
               <motion.div
                 whileHover={{ rotate: 360 }}
